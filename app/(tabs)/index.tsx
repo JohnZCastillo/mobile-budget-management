@@ -1,98 +1,113 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Card } from '@/components/ui/card';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
+import { AllowanceContext } from '@/context/AllowanceContextProvider';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
+import { useContext, useState } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function Index() {
 
-export default function HomeScreen() {
+  const router = useRouter();
+  
+  const {setSelectedBudget} = useContext(AllowanceContext);
+
+  const [budget,setBudget] = useState(100);
+  
+  const [allowance , setAllowance] = useState([
+    {
+      title: 'Fare Allowance',
+      allowance: 500,
+    },
+     {
+      title: 'Good Allowance',
+      allowance: 500,
+    }
+  ]);
+  
+  const handleOnSelectAllowance = (allowance) => {
+    setSelectedBudget(allowance);
+    router.navigate('/modal');
+  }
+
+  const allowanceRenderer = ({item})=> {
+    return <View className='mb-2 bg-white py-3 px-5 rounded-lg flex-row items-center'>
+        <View>
+          <Text className='text-sm text-gray-500'>{item?.title}</Text>
+          <Text className='text-3xl font-bold'>{item?.allowance}</Text>
+        </View>
+        <TouchableOpacity onPress={()=> handleOnSelectAllowance(item)} className='ms-auto'>
+           <Ionicons name="chevron-forward-sharp" size={20} color="black" />
+        </TouchableOpacity>
+      </View>
+  }
+
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  <View className='px-2' style={{flex: 1}}>
+      
+      <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
+        <View className='flex-row justify-between items-center mb-5'>
+          <View>
+              <Text className='text-gray-500' size="sm">Balance</Text>
+              <Heading size="5xl" className="mb-1">{budget}</Heading>
+          </View>
+          <TouchableOpacity className='mt-2'>
+           <Ionicons name="add-circle-outline" size={30} color="black" />
+          </TouchableOpacity>                   
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View className='flex-row gap-8'>
+        <View>
+          <Text className='text-gray-500 text-sm'>Income</Text>
+          <Text>500</Text>
+        </View>
+        <View>
+          <Text className='text-gray-500 text-sm'>Expenses</Text>
+          <Text>500</Text>
+        </View>
+      </View>  
+
+      </Card>
+    <FlatList data={allowance} renderItem={allowanceRenderer}/>
+      
+  </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    // position: 'relative',
+    // padding: 5,
+    // backgroundColor: 'red',
+    flex: 1,
+    alignItems: 'stretch',
+    // justifyContent: 'center',
+  },
+  card: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 50,
+    right: 50
+  },
+  text: {
+    color: '#fff',
+  },
+  button: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    color: '#fff',
+  },
+  action: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'flex-start',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  scrollView: {
+  }
 });
