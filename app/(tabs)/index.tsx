@@ -2,15 +2,27 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { AllowanceContext } from '@/context/AllowanceContextProvider';
+import * as schema from '@/db/schema';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { drizzle, useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
+import { openDatabaseSync } from 'expo-sqlite';
 import { useContext, useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
+
+  const expo = openDatabaseSync('db.db', { enableChangeListener: true }); 
+  const db = drizzle(expo);
 
 export default function Index() {
 
   const router = useRouter();
+
+  const {data: [wallet]} = useLiveQuery(db.select().from(schema.walletTable).limit(1));
   
+  const {data: budgets} = useLiveQuery(db.select().from(schema.budget));
+
+  console.log('wallet: ', wallet);
+
   const {setSelectedBudget} = useContext(AllowanceContext);
 
   const [budget,setBudget] = useState(100);
@@ -35,7 +47,7 @@ export default function Index() {
     return <View className='mb-2 bg-white py-3 px-5 rounded-lg flex-row items-center'>
         <View>
           <Text className='text-sm text-gray-500'>{item?.title}</Text>
-          <Text className='text-3xl font-bold'>{item?.allowance}</Text>
+          <Text className='text-3xl font-bold'>{item?.amount}</Text>
         </View>
         <TouchableOpacity onPress={()=> handleOnSelectAllowance(item)} className='ms-auto'>
            <Ionicons name="chevron-forward-sharp" size={20} color="black" />
@@ -51,9 +63,9 @@ export default function Index() {
         <View className='flex-row justify-between items-center mb-5'>
           <View>
               <Text className='text-gray-500' size="sm">Balance</Text>
-              <Heading size="5xl" className="mb-1">{budget}</Heading>
+              <Heading size="5xl" className="mb-1">{wallet?.amount ?? 0}</Heading>
           </View>
-          <TouchableOpacity className='mt-2'>
+          <TouchableOpacity onPress={()=>   router.navigate('/addBudgetModal')} className='mt-2'>
            <Ionicons name="add-circle-outline" size={30} color="black" />
           </TouchableOpacity>                   
       </View>
@@ -70,44 +82,27 @@ export default function Index() {
       </View>  
 
       </Card>
-    <FlatList data={allowance} renderItem={allowanceRenderer}/>
-      
+
+      <View className='flex-row gap-5 p-2'>
+        
+        <View>
+          <TouchableOpacity onPress={()=> router.navigate('/addBudget')} className='bg-white p-3 rounded-r-md'>
+            <Ionicons name="cash-outline" size={33} color="black" />
+          </TouchableOpacity>
+          <Text className='text-sm text-center mt-2'>Budget</Text>
+        </View>
+
+          
+        <View>
+          <TouchableOpacity onPress={()=> router.navigate('/addExpense')} className='bg-white p-3 rounded-md'>
+            <Ionicons name="add-circle-outline" size={33} color="black" />
+          </TouchableOpacity>
+          <Text className='text-sm text-center mt-2'>Expense</Text>
+        </View>
+
+      </View>
+
+      <FlatList data={budgets} renderItem={allowanceRenderer}/>
   </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    // position: 'relative',
-    // padding: 5,
-    // backgroundColor: 'red',
-    flex: 1,
-    alignItems: 'stretch',
-    // justifyContent: 'center',
-  },
-  card: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  floatingButton: {
-    position: 'absolute',
-    bottom: 50,
-    right: 50
-  },
-  text: {
-    color: '#fff',
-  },
-  button: {
-    fontSize: 20,
-    textDecorationLine: 'underline',
-    color: '#fff',
-  },
-  action: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  scrollView: {
-  }
-});
