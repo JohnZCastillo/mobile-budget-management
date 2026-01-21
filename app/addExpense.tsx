@@ -1,6 +1,7 @@
+import Selection from '@/components/selection';
 import db from '@/db/db';
 import * as schema from '@/db/schema';
-import { Picker } from '@react-native-picker/picker';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -12,8 +13,12 @@ export default function ModalScreen(){
 
     const [amount, setAmount] = useState('');
     const [title, setTitle] = useState('');
+    const [budget, setBudget] = useState(null);
+
     const [selectedLanguage, setSelectedLanguage] = useState();
 
+    const {data: budgets} = useLiveQuery(db.select().from(schema.budget));
+    
     const router = useRouter();
 
     const handleOnBack = ()=>{
@@ -23,10 +28,12 @@ export default function ModalScreen(){
     const handleOnAdd = async () => {
         try{
 
-        return db.insert(schema.budget)
+        return db.insert(schema.expense)
                     .values({
-                    title: title,
-                    amount: amount,
+                        title: title,
+                        amount: amount,
+                        budgetId: budget.id,
+                        date: Date(),
                     });
 
         }catch(err){
@@ -68,23 +75,7 @@ export default function ModalScreen(){
 
                                   <View>
                                     <Text className="mb-2">Select Budget</Text>
-                                     <View className="border p-1 border-gray-300">
-                                        <Picker
-                                          style={{
-                                            height: 40,
-                                            fontSize: 12
-                                                }}
-                                                itemStyle={{
-                                                    fontSize: 12
-                                                }}
-                                            selectedValue={selectedLanguage}
-                                            onValueChange={(itemValue, itemIndex) =>
-                                                setSelectedLanguage(itemValue)
-                                            }>
-                                            <Picker.Item label="Java" value="java" />
-                                            <Picker.Item label="JavaScript" value="js" />
-                                        </Picker>
-                                    </View>
+                                    <Selection onChange={setBudget} options={budgets.map(budget => ({label: budget.title, value: budget.id}))} />
                                 </View>
                             </View>
                           
