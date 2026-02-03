@@ -1,14 +1,17 @@
+import ExpenseModal from '@/components/expenseModal';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { AllowanceContext } from '@/context/AllowanceContextProvider';
 import * as schema from '@/db/schema';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 import { drizzle, useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
 import { openDatabaseSync } from 'expo-sqlite';
-import { useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
   const expo = openDatabaseSync('db.db', { enableChangeListener: true }); 
   const db = drizzle(expo);
@@ -22,6 +25,8 @@ export default function Index() {
   const {data: budgets} = useLiveQuery(db.select().from(schema.budget));
 
   console.log('wallet: ', wallet);
+
+   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const {setSelectedBudget} = useContext(AllowanceContext);
 
@@ -43,6 +48,8 @@ export default function Index() {
     router.navigate('/modal');
   }
 
+  const snapPoints =  ['50%'];
+
   const allowanceRenderer = ({item})=> {
     return <View className='mb-2 bg-white py-3 px-5 rounded-lg flex-row items-center'>
         <View>
@@ -55,10 +62,30 @@ export default function Index() {
       </View>
   }
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handlePresentModalPress = () => {
+    setIsModalOpen(prev => !prev);
+  };
+
+  useEffect(()=>{
+    if(isModalOpen){
+     bottomSheetModalRef.current?.present();
+    }else{
+     bottomSheetModalRef.current?.dismiss();
+    }
+  },[isModalOpen])
   
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
   return (
   <View className='px-2' style={{flex: 1}}>
       
+          <GestureHandlerRootView style={{flex: 1}}>
+      <BottomSheetModalProvider>
+
       <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
         <View className='flex-row justify-between items-center mb-5'>
           <View>
@@ -94,15 +121,33 @@ export default function Index() {
 
           
         <View>
-          <TouchableOpacity onPress={()=> router.navigate('/addExpense')} className='bg-white p-3 rounded-md'>
+          <TouchableOpacity onPress={handlePresentModalPress} className='bg-white p-3 rounded-md'>
             <Ionicons name="add-circle-outline" size={33} color="black" />
           </TouchableOpacity>
           <Text className='text-sm text-center mt-2'>Expense</Text>
         </View>
 
       </View>
-
       <FlatList data={budgets} renderItem={allowanceRenderer}/>
+
+
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={snapPoints}
+            index={1}
+            onDismiss={()=> setIsModalOpen(false)}
+        >
+
+
+          <BottomSheetView>
+           <ExpenseModal/>
+          </BottomSheetView>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
+
+
   </View>
   );
 }
