@@ -80,69 +80,71 @@ export default function Index() {
     console.log('handleSheetChanges', index);
   }, []);
 
+
   return (
-  <View className='px-2' style={{flex: 1}}>
+  <View style={{flex: 1}}>
       
-          <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={{flex: 1}}>
       <BottomSheetModalProvider>
 
-      <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
-        <View className='flex-row justify-between items-center mb-5'>
+        <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
+          <View className='flex-row justify-between items-center mb-5'>
+            <View>
+                <Text className='text-gray-500' size="sm">Balance</Text>
+                <Heading size="5xl" className="mb-1">{wallet?.amount ?? 0}</Heading>
+            </View>
+            <TouchableOpacity onPress={()=>   router.navigate('/addBudgetModal')} className='mt-2'>
+            <Ionicons name="add-circle-outline" size={30} color="black" />
+            </TouchableOpacity>                   
+        </View>
+
+        <View className='flex-row gap-8'>
           <View>
-              <Text className='text-gray-500' size="sm">Balance</Text>
-              <Heading size="5xl" className="mb-1">{wallet?.amount ?? 0}</Heading>
+            <Text className='text-gray-500 text-sm'>Income</Text>
+            <Text>500</Text>
           </View>
-          <TouchableOpacity onPress={()=>   router.navigate('/addBudgetModal')} className='mt-2'>
-           <Ionicons name="add-circle-outline" size={30} color="black" />
-          </TouchableOpacity>                   
-      </View>
+          <View>
+            <Text className='text-gray-500 text-sm'>Expenses</Text>
+            <Text>500</Text>
+          </View>
+        </View>  
 
-      <View className='flex-row gap-8'>
-        <View>
-          <Text className='text-gray-500 text-sm'>Income</Text>
-          <Text>500</Text>
-        </View>
-        <View>
-          <Text className='text-gray-500 text-sm'>Expenses</Text>
-          <Text>500</Text>
-        </View>
-      </View>  
+        </Card>
 
-      </Card>
-
-      <View className='flex-row gap-5 p-2'>
-        
-        <View>
-          <TouchableOpacity onPress={()=> router.navigate('/addBudget')} className='bg-white p-3 rounded-r-md'>
-            <Ionicons name="cash-outline" size={33} color="black" />
-          </TouchableOpacity>
-          <Text className='text-sm text-center mt-2'>Budget</Text>
-        </View>
-
+        <View className='flex-row gap-5 p-2'>
           
-        <View>
-          <TouchableOpacity onPress={handlePresentModalPress} className='bg-white p-3 rounded-md'>
-            <Ionicons name="add-circle-outline" size={33} color="black" />
-          </TouchableOpacity>
-          <Text className='text-sm text-center mt-2'>Expense</Text>
+          <View>
+            <TouchableOpacity onPress={()=> router.navigate('/addBudget')} className='bg-white p-3 rounded-r-md'>
+              <Ionicons name="cash-outline" size={33} color="black" />
+            </TouchableOpacity>
+            <Text className='text-sm text-center mt-2'>Budget</Text>
+          </View>
+
+            
+          <View>
+            <TouchableOpacity onPress={handlePresentModalPress} className='bg-white p-3 rounded-md'>
+              <Ionicons name="add-circle-outline" size={33} color="black" />
+            </TouchableOpacity>
+            <Text className='text-sm text-center mt-2'>Expense</Text>
+          </View>
+
         </View>
 
-      </View>
-      <FlatList data={budgets} renderItem={allowanceRenderer}/>
+        <FlatList data={budgets} renderItem={allowanceRenderer}/>
 
 
         <BottomSheetModal
           ref={bottomSheetModalRef}
-            onChange={handleSheetChanges}
-            snapPoints={snapPoints}
-            index={1}
-            onDismiss={()=> setIsModalOpen(false)}
-        >
+          onChange={handleSheetChanges}
+          snapPoints={snapPoints}
+          index={1}
+          onDismiss={()=> setIsModalOpen(false)}
+      >
 
-
-          <BottomSheetView>
-           <ExpenseModal/>
-          </BottomSheetView>
+        <BottomSheetView >
+          <ExpenseModal onCancel={()=> setIsModalOpen(false)}/>
+        </BottomSheetView>
+        
         </BottomSheetModal>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
