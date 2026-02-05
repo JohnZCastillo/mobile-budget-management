@@ -1,11 +1,12 @@
-import Selection from '@/components/selection';
 import db from '@/db/db';
 import * as schema from '@/db/schema';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import Carousel from "react-native-reanimated-carousel";
 
 export default function ExpenseModal({onCancel}){
 
@@ -37,6 +38,18 @@ export default function ExpenseModal({onCancel}){
         }
     }
 
+    const budgetRenderer = ({item} ) => {
+    
+        return (
+        <View className="rounded-5xl border w-full">
+            <Ionicons name="add-circle-outline" size={30} color="black" />
+            <Text className='text-5xl font-bold'>Helloslafksadgsdasdafsdafsdafsdjf</Text>
+            <Text className='text-5xl font-bold'>tang ina</Text>
+        </View>
+        );
+    }
+
+
     return (
             <View className='h-full items-center justify-center'>
                 <KeyboardAvoidingView
@@ -44,14 +57,34 @@ export default function ExpenseModal({onCancel}){
                     keyboardVerticalOffset={50}
                     className='w-full px-5' 
                 >
-                    <View className="w-full py-2 rounded-md">
-                            <View className="flex-row items-center justify-between border-b border-gray-200 pt-2 pb-4 mb-5">
-                                <Text>New Expense</Text>
-                                <TouchableOpacity onPress={onCancel}>
-                                    <Text>Exit</Text>
-                                </TouchableOpacity>
-                            </View>
 
+        <View  id="carousel-component">
+            <Carousel
+            //   onScrollStart={() => setScrollEnabled(false)}
+            //   onScrollEnd={() => setScrollEnabled(true)}
+              autoPlayInterval={2000}
+              loop={false}
+            //   pagingEnabled={true}
+              snapEnabled={true}
+              width={Dimensions.get('screen').width}
+              style={{
+                width: '100%',
+                height: 100,
+              }}
+              mode="parallax"
+              modeConfig={{
+                parallaxScrollingScale: 1,
+              }}
+              renderItem={budgetRenderer}
+            //   enabled={promotions?.data?.length > 1 ? true : false}
+              data={budgets ?? []}
+            //   onSnapToItem={(index) => setPageState(promotions?.data?.[index])}
+            />
+          </View>
+
+
+                    <View className="w-full py-2 rounded-md">
+                            
                             <View className='gap-5 border-b border-gray-200 pb-[30]'>
                                 <View>
                                     <Text className="mb-2">Title</Text>
@@ -65,23 +98,12 @@ export default function ExpenseModal({onCancel}){
                                         <TextInput inputMode='numeric' value={amount} onChangeText={setAmount} placeholder="type here"/>
                                     </View>
                                 </View>
-
-                                  <View>
-                                    <Text className="mb-2">Select Budget</Text>
-                                    <Selection onChange={setBudget} options={budgets.map(budget => ({label: budget.title, value: budget.id}))} />
-                                </View>
                             </View>
                           
-                            <View className='mt-2 flex-row gap-3 py-2'>
-                                    
-                                <TouchableOpacity onPress={handleOnAdd} className='px-3 py-2 border border-gray-300 rounded '>
-                                    <Text>Confirm</Text>
+                            <View className='flex-1 bg-indigo-500 p-5 rounded-lg'>
+                                <TouchableOpacity onPress={onCancel}>
+                                    <Text className='text-xl text-center text-white font-bold'>Confirm</Text>
                                 </TouchableOpacity>
-
-                                <TouchableOpacity onPress={onCancel} className='px-3 py-2 border border-gray-300 rounded '>
-                                    <Text>Cancel</Text>
-                                </TouchableOpacity>
-                                
                             </View>
                     </View>
                 </KeyboardAvoidingView>

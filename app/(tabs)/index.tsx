@@ -142,7 +142,7 @@ export default function Index() {
       >
 
         <BottomSheetView >
-          <ExpenseModal onCancel={()=> setIsModalOpen(false)}/>
+          <ExpenseModal  onCancel={()=> setIsModalOpen(false)}/>
         </BottomSheetView>
         
         </BottomSheetModal>
