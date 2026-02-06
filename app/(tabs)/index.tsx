@@ -12,6 +12,8 @@ import { openDatabaseSync } from 'expo-sqlite';
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
   const expo = openDatabaseSync('db.db', { enableChangeListener: true }); 
   const db = drizzle(expo);
@@ -82,74 +84,77 @@ export default function Index() {
 
 
   return (
-  <View style={{flex: 1}}>
-      
-    <GestureHandlerRootView style={{flex: 1}}>
-      <BottomSheetModalProvider>
-
-        <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
-          <View className='flex-row justify-between items-center mb-5'>
-            <View>
-                <Text className='text-gray-500' size="sm">Balance</Text>
-                <Heading size="5xl" className="mb-1">{wallet?.amount ?? 0}</Heading>
-            </View>
-            <TouchableOpacity onPress={()=>   router.navigate('/addBudgetModal')} className='mt-2'>
-            <Ionicons name="add-circle-outline" size={30} color="black" />
-            </TouchableOpacity>                   
-        </View>
-
-        <View className='flex-row gap-8'>
-          <View>
-            <Text className='text-gray-500 text-sm'>Income</Text>
-            <Text>500</Text>
-          </View>
-          <View>
-            <Text className='text-gray-500 text-sm'>Expenses</Text>
-            <Text>500</Text>
-          </View>
-        </View>  
-
-        </Card>
-
-        <View className='flex-row gap-5 p-2'>
-          
-          <View>
-            <TouchableOpacity onPress={()=> router.navigate('/addBudget')} className='bg-white p-3 rounded-r-md'>
-              <Ionicons name="cash-outline" size={33} color="black" />
-            </TouchableOpacity>
-            <Text className='text-sm text-center mt-2'>Budget</Text>
-          </View>
-
-            
-          <View>
-            <TouchableOpacity onPress={handlePresentModalPress} className='bg-white p-3 rounded-md'>
-              <Ionicons name="add-circle-outline" size={33} color="black" />
-            </TouchableOpacity>
-            <Text className='text-sm text-center mt-2'>Expense</Text>
-          </View>
-
-        </View>
-
-        <FlatList data={budgets} renderItem={allowanceRenderer}/>
-
-
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          onChange={handleSheetChanges}
-          snapPoints={snapPoints}
-          index={1}
-          onDismiss={()=> setIsModalOpen(false)}
+    <SafeAreaView edges={['left','right']} className='flex-1'>
+      <KeyboardAvoidingView
+          behavior={"padding"}
+          keyboardVerticalOffset={100}
+          className='flex-1'
       >
+      <GestureHandlerRootView>
+        <BottomSheetModalProvider>
 
-        <BottomSheetView >
-          <ExpenseModal  onCancel={()=> setIsModalOpen(false)}/>
-        </BottomSheetView>
-        
-        </BottomSheetModal>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+          <Card size="lg" variant="elevated" className="m-3 bg-white rounded-lg justify-between">
+            <View className='flex-row justify-between items-center mb-5'>
+              <View>
+                  <Text className='text-gray-500' size="sm">Balance</Text>
+                  <Heading size="5xl" className="mb-1">{wallet?.amount ?? 0}</Heading>
+              </View>
+              <TouchableOpacity onPress={()=>   router.navigate('/addBudgetModal')} className='mt-2'>
+              <Ionicons name="add-circle-outline" size={30} color="black" />
+              </TouchableOpacity>                   
+          </View>
 
+          <View className='flex-row gap-8'>
+            <View>
+              <Text className='text-gray-500 text-sm'>Income</Text>
+              <Text>500</Text>
+            </View>
+            <View>
+              <Text className='text-gray-500 text-sm'>Expenses</Text>
+              <Text>500</Text>
+            </View>
+          </View>  
 
-  </View>
+          </Card>
+
+          <View className='flex-row gap-5 p-2'>
+            
+            <View>
+              <TouchableOpacity onPress={()=> router.navigate('/addBudget')} className='bg-white p-3 rounded-r-md'>
+                <Ionicons name="cash-outline" size={33} color="black" />
+              </TouchableOpacity>
+              <Text className='text-sm text-center mt-2'>Budget</Text>
+            </View>
+
+              
+            <View>
+              <TouchableOpacity onPress={handlePresentModalPress} className='bg-white p-3 rounded-md'>
+                <Ionicons name="add-circle-outline" size={33} color="black" />
+              </TouchableOpacity>
+              <Text className='text-sm text-center mt-2'>Expense</Text>
+            </View>
+
+          </View>
+
+          <FlatList data={budgets} renderItem={allowanceRenderer}/>
+
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={snapPoints}
+            index={1}
+            onDismiss={()=> setIsModalOpen(false)}
+        >
+
+          <BottomSheetView >
+            <ExpenseModal  onCancel={()=> setIsModalOpen(false)}/>
+          </BottomSheetView>
+          
+          </BottomSheetModal>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+
   );
 }
